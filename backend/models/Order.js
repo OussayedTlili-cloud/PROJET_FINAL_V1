@@ -1,10 +1,23 @@
 const mongoose = require('mongoose');
 
+// Générer un numéro de commande unique
+async function generateOrderNumber() {
+    const count = await mongoose.model('Order').countDocuments();
+    const year = new Date().getFullYear();
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `CMD-${year}-${random}`;
+}
+
 const orderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false,
+        default: null
+    },
+    guestInfo: {
+        email: { type: String, default: '' },
+        name: { type: String, default: '' }
     },
     items: [{
         product: {
@@ -32,10 +45,16 @@ const orderSchema = new mongoose.Schema({
     },
     shippingAddress: {
         fullName: { type: String, required: true },
+        phone: { type: String, required: true },
+        phone2: { type: String, default: '' },
         address: { type: String, required: true },
-        city: { type: String, required: true },
-        postalCode: { type: String, required: true },
-        country: { type: String, required: true, default: 'France' }
+        region: { type: String, required: true },
+        comment: { type: String, default: '' },
+        country: { type: String, required: true, default: 'Tunisie' }
+    },
+    orderNumber: {
+        type: String,
+        unique: true
     },
     createdAt: {
         type: Date,

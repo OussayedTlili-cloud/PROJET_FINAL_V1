@@ -94,7 +94,7 @@ const AdminDashboard = () => {
                                 {product.imageUrl && <img src={`http://localhost:5000${product.imageUrl}`} alt="" style={{ width: '40px' }} />}
                             </td>
                             <td>{product.name}</td>
-                            <td>{product.price} €</td>
+                            <td>{product.price} DT</td>
                             <td>{product.stock}</td>
                             <td>{product.category}</td>
                             <td>
@@ -121,7 +121,7 @@ const AdminDashboard = () => {
                             </Col>
                             <Col md={6}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Prix (€)</Form.Label>
+                                    <Form.Label>Prix (DT)</Form.Label>
                                     <Form.Control type="number" step="0.01" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} required />
                                 </Form.Group>
                             </Col>

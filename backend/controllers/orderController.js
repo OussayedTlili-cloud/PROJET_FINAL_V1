@@ -1,10 +1,18 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 
-// Passer une commande (user connecté)
+// Fonction pour générer numéro de commande
+async function generateOrderNumber() {
+    const count = await Order.countDocuments();
+    const year = new Date().getFullYear();
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `CMD-${year}-${random}`;
+}
+
+// Passer une commande (connecté OU invité)
 const createOrder = async (req, res) => {
     try {
-        const { items, shippingAddress } = req.body;
+        const { items, shippingAddress, guestEmail, guestName } = req.body;
         
         if (!items || items.length === 0) {
             return res.status(400).json({ message: 'La commande doit contenir au moins un produit' });
@@ -38,12 +46,26 @@ const createOrder = async (req, res) => {
             await product.save();
         }
         
-        const order = await Order.create({
-            user: req.user.id,
+        // Créer la commande (avec ou sans utilisateur connecté)
+        const orderData = {
             items: orderItems,
             totalAmount,
-            shippingAddress
-        });
+            shippingAddress,
+            orderNumber: await generateOrderNumber()
+        };
+        
+        if (req.user) {
+            // Utilisateur connecté
+            orderData.user = req.user.id;
+        } else {
+            // Commande invité
+            orderData.guestInfo = {
+                email: guestEmail || '',
+                name: guestName || shippingAddress.fullName
+            };
+        }
+        
+        const order = await Order.create(orderData);
         
         res.status(201).json(order);
     } catch (error) {

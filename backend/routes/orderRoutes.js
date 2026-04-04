@@ -12,7 +12,7 @@ const { admin } = require('../middleware/adminMiddleware');
 const router = express.Router();
 
 router.route('/')
-    .post(protect, createOrder)
+    .post(createOrder)
     .get(protect, getMyOrders);
 
 router.get('/all', protect, admin, getAllOrders);
