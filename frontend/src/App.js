@@ -4,6 +4,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import NavigationBar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Products from './pages/Products';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -13,9 +15,11 @@ function App() {
             <Router>
                 <NavigationBar />
                 <Routes>
-                    <Route path="/" element={<div className="text-center mt-5"><h1>Bienvenue sur E-Shop</h1><p>Votre boutique en ligne</p></div>} />
+                    <Route path="/" element={<Products />} />
+                    <Route path="/products" element={<Products />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 </Routes>
             </Router>
         </AuthProvider>
