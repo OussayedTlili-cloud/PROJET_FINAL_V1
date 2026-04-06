@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Container, Form, Button, Card, Alert } from 'react-bootstrap';
 import { AuthContext } from '../contexts/AuthContext';
 
@@ -12,6 +12,7 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const { register } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,7 +32,12 @@ const Register = () => {
         
         try {
             await register(name, email, password);
-            navigate('/');
+            const fromCheckout = location.state?.fromCheckout;
+            if (fromCheckout) {
+                navigate('/checkout');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Erreur d\'inscription');
         } finally {

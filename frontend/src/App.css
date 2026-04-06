@@ -1,17 +1,103 @@
-body {
-    background-color: #f5f5f5;
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #0d6efd;
+    --dark-color: #212529;
+    --light-bg: #f8f9fa;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.card {
+body {
+    background-color: #f7f9fc;
+    font-family: 'Outfit', sans-serif;
+    color: #333;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
     border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Premium Card Style */
+.card {
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12), 0 0 15px rgba(13, 110, 253, 0.3) !important;
+}
+
+.card:hover .product-img {
+    filter: brightness(1.1) saturate(1.1);
+}
+
+/* Modern Buttons */
+.btn {
+    border-radius: 12px !important;
+    padding: 0.6rem 1.5rem !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
 }
 
 .btn-primary {
-    background-color: #0d6efd;
-    border: none;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.25);
 }
 
 .btn-primary:hover {
-    background-color: #0b5ed7;
+    transform: scale(1.02);
+    box-shadow: 0 6px 15px rgba(13, 110, 253, 0.35);
+}
+
+/* Layout Utilities */
+.section-padding {
+    padding: 60px 0;
+}
+
+.bg-gradient-retro {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Sticky Navbar Shadow */
+.navbar-sticky {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* Form Styles */
+.form-control {
+    border-radius: 10px !important;
+    padding: 0.75rem 1rem !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15) !important;
+}
+
+/* Transitions */
+.transition-200 { transition: all 0.2s ease; }
+.transition-300 { transition: all 0.3s ease; }
+
+/* Status Badges */
+.badge {
+    padding: 0.5em 1em !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
 }

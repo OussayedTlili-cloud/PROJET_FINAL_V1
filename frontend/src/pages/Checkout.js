@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Form, Button, Card, Row, Col, Alert, ListGroup } from 'react-bootstrap';
+import { Container, Form, Button, Card, Row, Col, Alert, ListGroup, Badge } from 'react-bootstrap';
 import { CartContext } from '../contexts/CartContext';
 import { AuthContext } from '../contexts/AuthContext';
 import { createOrder } from '../services/orderService';
@@ -29,41 +29,28 @@ const Checkout = () => {
         comment: ''
     });
 
-    // Rediriger si non connecté
     useEffect(() => {
         if (!user) {
-            toast.error('Veuillez vous connecter');
             navigate('/login');
         }
-    }, [user, navigate]);
-
-    // Rediriger si panier vide
-    useEffect(() => {
         if (cartItems.length === 0 && user) {
             navigate('/products');
         }
-    }, [cartItems.length, navigate, user]);
+    }, [user, cartItems.length, navigate]);
 
-    // Mettre à jour le nom quand user change
     useEffect(() => {
         if (user) {
             setShipping(prev => ({ ...prev, fullName: user.name }));
         }
     }, [user]);
 
-    if (!user) {
-        return <div className="text-center mt-5">Redirection...</div>;
-    }
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        
         if (!shipping.region) {
             setError('Veuillez sélectionner une région');
             return;
         }
-        
         setLoading(true);
 
         const orderData = {
@@ -85,139 +72,160 @@ const Checkout = () => {
         try {
             const response = await createOrder(orderData);
             clearCart();
-            toast.success('Commande validée !');
+            toast.success('Commande validée !', { icon: '🕹️' });
             setTimeout(() => {
                 navigate('/order-confirmation', { state: { order: response } });
             }, 100);
         } catch (err) {
-            console.error('Erreur:', err);
             setError(err.response?.data?.message || 'Erreur lors de la commande');
             setLoading(false);
         }
     };
 
     return (
-        <Container className="mt-4 mb-5">
-            <h2 className="mb-4">Finaliser votre commande</h2>
-            <p className="text-muted mb-4">Bonjour {user?.name}, veuillez confirmer vos informations</p>
+        <Container className="mt-5 mb-5 py-4">
+            <div className="mb-5 text-center">
+                <h1 className="fw-bold display-5">Finaliser ma commande</h1>
+                <p className="text-muted lead">Bonjour <span className="text-primary fw-bold">{user?.name}</span>, vérifiez vos informations pour la livraison.</p>
+            </div>
             
-            <Row>
-                <Col md={7}>
-                    <Card className="mb-4">
+            <Row className="g-4">
+                <Col lg={7}>
+                    <Card className="border-0 shadow-sm p-4" style={{ borderRadius: '24px' }}>
                         <Card.Body>
-                            <Card.Title className="mb-3">Adresse de livraison</Card.Title>
-                            {error && <Alert variant="danger">{error}</Alert>}
+                            <h4 className="fw-bold mb-4 d-flex align-items-center">
+                                <span className="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center me-3" style={{ width: '40px', height: '40px' }}>1</span>
+                                Livraison
+                            </h4>
+                            {error && <Alert variant="danger" className="rounded-4 border-0 shadow-sm mb-4">{error}</Alert>}
+                            
                             <Form onSubmit={handleSubmit}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Nom complet <span className="text-danger">*</span></Form.Label>
-                                    <Form.Control
-                                        value={shipping.fullName}
-                                        onChange={(e) => setShipping({...shipping, fullName: e.target.value})}
-                                        required
-                                    />
-                                </Form.Group>
-                                
-                                <Row>
+                                <Row className="g-3">
+                                    <Col md={12}>
+                                        <Form.Group>
+                                            <Form.Label className="small fw-bold text-muted text-uppercase">Nom du destinataire *</Form.Label>
+                                            <Form.Control
+                                                value={shipping.fullName}
+                                                onChange={(e) => setShipping({...shipping, fullName: e.target.value})}
+                                                required
+                                                className="bg-light border-0 py-3"
+                                            />
+                                        </Form.Group>
+                                    </Col>
                                     <Col md={6}>
-                                        <Form.Group className="mb-3">
-                                            <Form.Label>Téléphone <span className="text-danger">*</span></Form.Label>
+                                        <Form.Group>
+                                            <Form.Label className="small fw-bold text-muted text-uppercase">Téléphone *</Form.Label>
                                             <Form.Control
                                                 type="tel"
                                                 value={shipping.phone}
                                                 onChange={(e) => setShipping({...shipping, phone: e.target.value})}
                                                 required
+                                                className="bg-light border-0 py-3"
+                                                placeholder="+216 -- --- ---"
                                             />
                                         </Form.Group>
                                     </Col>
                                     <Col md={6}>
-                                        <Form.Group className="mb-3">
-                                            <Form.Label>Téléphone 2 (facultatif)</Form.Label>
+                                        <Form.Group>
+                                            <Form.Label className="small fw-bold text-muted text-uppercase">Téléphone 2 (Optionnel)</Form.Label>
                                             <Form.Control
                                                 type="tel"
                                                 value={shipping.phone2}
                                                 onChange={(e) => setShipping({...shipping, phone2: e.target.value})}
+                                                className="bg-light border-0 py-3"
+                                                placeholder="Mobile ou fixe"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={12}>
+                                        <Form.Group>
+                                            <Form.Label className="small fw-bold text-muted text-uppercase">Région *</Form.Label>
+                                            <Form.Select
+                                                value={shipping.region}
+                                                onChange={(e) => setShipping({...shipping, region: e.target.value})}
+                                                required
+                                                className="bg-light border-0 py-3"
+                                            >
+                                                <option value="">Sélectionnez votre région</option>
+                                                {regions.map(region => (
+                                                    <option key={region} value={region}>{region}</option>
+                                                ))}
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={12}>
+                                        <Form.Group>
+                                            <Form.Label className="small fw-bold text-muted text-uppercase">Adresse complète *</Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                rows={2}
+                                                value={shipping.address}
+                                                onChange={(e) => setShipping({...shipping, address: e.target.value})}
+                                                required
+                                                className="bg-light border-0 py-3"
+                                                placeholder="Rue, N°, Ville, Code Postal..."
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={12}>
+                                        <Form.Group>
+                                            <Form.Label className="small fw-bold text-muted text-uppercase">Commentaire sur la commande</Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                rows={2}
+                                                value={shipping.comment}
+                                                onChange={(e) => setShipping({...shipping, comment: e.target.value})}
+                                                className="bg-light border-0 py-3"
+                                                placeholder="Ex: Appeler avant d'arriver..."
                                             />
                                         </Form.Group>
                                     </Col>
                                 </Row>
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Adresse complète <span className="text-danger">*</span></Form.Label>
-                                    <Form.Control
-                                        as="textarea"
-                                        rows={2}
-                                        value={shipping.address}
-                                        onChange={(e) => setShipping({...shipping, address: e.target.value})}
-                                        required
-                                    />
-                                </Form.Group>
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Région <span className="text-danger">*</span></Form.Label>
-                                    <Form.Select
-                                        value={shipping.region}
-                                        onChange={(e) => setShipping({...shipping, region: e.target.value})}
-                                        required
-                                    >
-                                        <option value="">Sélectionnez votre région</option>
-                                        {regions.map(region => (
-                                            <option key={region} value={region}>{region}</option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Commentaire (facultatif)</Form.Label>
-                                    <Form.Control
-                                        as="textarea"
-                                        rows={2}
-                                        value={shipping.comment}
-                                        onChange={(e) => setShipping({...shipping, comment: e.target.value})}
-                                    />
-                                </Form.Group>
-
-                                <Button type="submit" variant="success" className="w-100" disabled={loading}>
-                                    {loading ? 'Commande en cours...' : `Confirmer la commande (${cartTotal.toFixed(2)} DT)`}
+                                <Button type="submit" variant="primary" className="w-100 mt-5 py-3 rounded-pill fw-bold shadow transition-300" disabled={loading}>
+                                    {loading ? 'Validation en cours...' : `Confirmer ma commande (${cartTotal.toFixed(2)} DT)`}
                                 </Button>
                             </Form>
                         </Card.Body>
                     </Card>
                 </Col>
-                <Col md={5}>
-                    <Card>
+
+                <Col lg={5}>
+                    <Card className="border-0 shadow-sm p-4 sticky-top d-none d-lg-block" style={{ borderRadius: '24px', top: '100px' }}>
                         <Card.Body>
-                            <Card.Title className="mb-3">Récapitulatif</Card.Title>
-                            <ListGroup variant="flush">
+                            <h4 className="fw-bold mb-4">Panier</h4>
+                            <ListGroup variant="flush" className="mb-4">
                                 {cartItems.map(item => (
-                                    <ListGroup.Item key={item._id} className="d-flex align-items-center px-0">
-                                        <img 
-                                            src={item.imageUrl ? `http://localhost:5000${item.imageUrl}` : 'https://via.placeholder.com/50'} 
-                                            alt={item.name}
-                                            style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '5px', marginRight: '10px' }}
-                                        />
-                                        <div className="flex-grow-1">
-                                            <div><strong>{item.name}</strong></div>
-                                            <div className="text-muted small">Quantité: {item.quantity}</div>
+                                    <ListGroup.Item key={item._id} className="d-flex align-items-center px-0 bg-transparent border-light py-3">
+                                        <div className="position-relative">
+                                            <img 
+                                                src={item.imageUrl || 'https://via.placeholder.com/60'} 
+                                                alt={item.name}
+                                                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '12px' }}
+                                                className="shadow-sm border"
+                                            />
+                                            <Badge pill bg="primary" className="position-absolute" style={{ top: '-8px', right: '-8px' }}>
+                                                {item.quantity}
+                                            </Badge>
                                         </div>
-                                        <div className="text-primary fw-bold">
+                                        <div className="ms-3 flex-grow-1">
+                                            <div className="fw-bold small">{item.name}</div>
+                                            <div className="text-muted small">{item.price.toFixed(2)} DT</div>
+                                        </div>
+                                        <div className="fw-bold text-primary">
                                             {(item.price * item.quantity).toFixed(2)} DT
                                         </div>
                                     </ListGroup.Item>
                                 ))}
                             </ListGroup>
-                            <hr />
-                            <div className="d-flex justify-content-between">
-                                <strong>Total</strong>
-                                <strong className="text-success fs-5">{cartTotal.toFixed(2)} DT</strong>
+                            
+                            <hr className="border-light" />
+                            
+                            <div className="d-flex justify-content-between h4 fw-bold mt-4">
+                                <span>Total</span>
+                                <span className="text-success">{cartTotal.toFixed(2)} DT</span>
                             </div>
                         </Card.Body>
                     </Card>
-                    
-                    <div className="text-center mt-3">
-                        <Button variant="link" onClick={() => navigate('/checkout-guest')}>
-                            Commander sans compte ?
-                        </Button>
-                    </div>
                 </Col>
             </Row>
         </Container>

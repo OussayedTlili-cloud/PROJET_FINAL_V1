@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Badge, Button, Modal, Form, Row, Col, ListGroup } from 'react-bootstrap';
+import { Container, Table, Badge, Button, Modal, Form, Row, Col, ListGroup, Card } from 'react-bootstrap';
 import { getAllOrders, updateOrderStatus } from '../../services/orderService';
 import toast from 'react-hot-toast';
 
@@ -10,6 +10,8 @@ const AdminOrders = () => {
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [newStatus, setNewStatus] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('tous');
 
     useEffect(() => {
         fetchOrders();
@@ -55,13 +57,59 @@ const AdminOrders = () => {
 
     if (loading) return <div className="text-center mt-5">Chargement...</div>;
 
+    const filteredOrders = orders.filter(order => {
+        const matchSearch = (order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                            (order.shippingAddress?.fullName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                            (order.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()));
+        const matchStatus = statusFilter === 'tous' || order.status === statusFilter;
+        return matchSearch && matchStatus;
+    });
+
     return (
         <Container className="mt-4">
             <h2 className="mb-4">📦 Gestion des commandes</h2>
-            <p className="text-muted mb-4">Total: {orders.length} commande(s)</p>
             
-            <Table striped bordered hover responsive>
-                <thead>
+            <Card className="mb-4 shadow-sm border-0 bg-light">
+                <Card.Body>
+                    <Row className="align-items-end">
+                        <Col md={5}>
+                            <Form.Group>
+                                <Form.Label className="fw-bold">Rechercher</Form.Label>
+                                <Form.Control 
+                                    type="text" 
+                                    placeholder="N° commande ou nom du client..." 
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col md={4}>
+                            <Form.Group>
+                                <Form.Label className="fw-bold">Filtrer par statut</Form.Label>
+                                <Form.Select 
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                >
+                                    <option value="tous">Tous les statuts</option>
+                                    <option value="en attente">⏳ En attente</option>
+                                    <option value="confirmée">✅ Confirmée</option>
+                                    <option value="expédiée">🚚 Expédiée</option>
+                                    <option value="livrée">📦 Livrée</option>
+                                    <option value="annulée">❌ Annulée</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                        <Col md={3} className="text-end">
+                            <Button variant="outline-primary" onClick={fetchOrders} size="sm">
+                                🔄 Actualiser
+                            </Button>
+                        </Col>
+                    </Row>
+                </Card.Body>
+            </Card>
+
+            <Table striped bordered hover responsive className="shadow-sm">
+                <thead className="table-dark">
                     <tr>
                         <th>N° Commande</th>
                         <th>Client</th>
@@ -73,7 +121,7 @@ const AdminOrders = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {orders.map(order => (
+                    {filteredOrders.map(order => (
                         <tr key={order._id}>
                             <td>{order.orderNumber || order._id.slice(-8)}</td>
                             <td>{order.user?.name || order.guestInfo?.name || order.shippingAddress?.fullName || 'Invité'}</td>
@@ -95,6 +143,13 @@ const AdminOrders = () => {
                             </td>
                         </tr>
                     ))}
+                    {filteredOrders.length === 0 && (
+                        <tr>
+                            <td colSpan="7" className="text-center py-4 text-muted">
+                                Aucune commande correspondante
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </Table>
 
@@ -108,7 +163,7 @@ const AdminOrders = () => {
                         <>
                             <Row className="mb-4">
                                 <Col md={6}>
-                                    <h5>👤 Informations client</h5>
+                                    <h5 className="border-bottom pb-2">👤 Client</h5>
                                     <p>
                                         <strong>Nom:</strong> {selectedOrder.user?.name || selectedOrder.guestInfo?.name || selectedOrder.shippingAddress?.fullName}<br/>
                                         <strong>Email:</strong> {selectedOrder.user?.email || selectedOrder.guestInfo?.email || '-'}<br/>
@@ -117,7 +172,7 @@ const AdminOrders = () => {
                                     </p>
                                 </Col>
                                 <Col md={6}>
-                                    <h5>📍 Adresse de livraison</h5>
+                                    <h5 className="border-bottom pb-2">📍 Livraison</h5>
                                     <p>
                                         <strong>Adresse:</strong> {selectedOrder.shippingAddress?.address}<br/>
                                         <strong>Région:</strong> {selectedOrder.shippingAddress?.region}<br/>
@@ -127,26 +182,32 @@ const AdminOrders = () => {
                             </Row>
                             
                             <h5>📝 Commentaire client</h5>
-                            <p className="bg-light p-2 rounded">{selectedOrder.shippingAddress?.comment || 'Aucun commentaire'}</p>
+                            <p className="bg-light p-3 rounded border">{selectedOrder.shippingAddress?.comment || 'Aucun commentaire'}</p>
                             
-                            <h5 className="mt-3">🛒 Articles commandés</h5>
-                            <ListGroup className="mb-3">
+                            <h5 className="mt-4">🛒 Articles commandés</h5>
+                            <ListGroup className="mb-3 shadow-sm">
                                 {selectedOrder.items?.map((item, index) => (
-                                    <ListGroup.Item key={index} className="d-flex justify-content-between">
-                                        <span>{item.name} x {item.quantity}</span>
-                                        <span>{(item.price * item.quantity).toFixed(2)} DT</span>
+                                    <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{item.name}</strong>
+                                            <div className="text-muted small">Prix unitaire: {item.price} DT</div>
+                                        </div>
+                                        <div>
+                                            <Badge bg="secondary" className="me-3">x {item.quantity}</Badge>
+                                            <span className="fw-bold">{(item.price * item.quantity).toFixed(2)} DT</span>
+                                        </div>
                                     </ListGroup.Item>
                                 ))}
-                                <ListGroup.Item className="d-flex justify-content-between fw-bold bg-light">
-                                    <span>Total</span>
+                                <ListGroup.Item className="d-flex justify-content-between fw-bold bg-dark text-white">
+                                    <span>Total de la commande</span>
                                     <span>{selectedOrder.totalAmount?.toFixed(2)} DT</span>
                                 </ListGroup.Item>
                             </ListGroup>
                             
-                            <div className="text-muted small">
-                                <strong>N° commande:</strong> {selectedOrder.orderNumber}<br/>
-                                <strong>Date:</strong> {new Date(selectedOrder.createdAt).toLocaleString()}<br/>
-                                <strong>Statut actuel:</strong> {getStatusBadge(selectedOrder.status)}
+                            <div className="text-end text-muted small mt-4">
+                                <div><strong>N° commande:</strong> {selectedOrder.orderNumber}</div>
+                                <div><strong>ID interne:</strong> {selectedOrder._id}</div>
+                                <div><strong>Date:</strong> {new Date(selectedOrder.createdAt).toLocaleString()}</div>
                             </div>
                         </>
                     )}
@@ -162,19 +223,24 @@ const AdminOrders = () => {
                     <Modal.Title>Modifier le statut</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p><strong>Commande:</strong> {selectedOrder?.orderNumber}</p>
-                    <p><strong>Client:</strong> {selectedOrder?.user?.name || selectedOrder?.guestInfo?.name || selectedOrder?.shippingAddress?.fullName}</p>
-                    <Form.Select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
-                        <option value="en attente">⏳ En attente</option>
-                        <option value="confirmée">✅ Confirmée</option>
-                        <option value="expédiée">🚚 Expédiée</option>
-                        <option value="livrée">📦 Livrée</option>
-                        <option value="annulée">❌ Annulée</option>
-                    </Form.Select>
+                    <p className="mb-3">
+                        <strong>Commande:</strong> {selectedOrder?.orderNumber}<br/>
+                        <strong>Client:</strong> {selectedOrder?.user?.name || selectedOrder?.guestInfo?.name || selectedOrder?.shippingAddress?.fullName}
+                    </p>
+                    <Form.Group>
+                        <Form.Label>Nouveau statut</Form.Label>
+                        <Form.Select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+                            <option value="en attente">⏳ En attente</option>
+                            <option value="confirmée">✅ Confirmée</option>
+                            <option value="expédiée">🚚 Expédiée</option>
+                            <option value="livrée">📦 Livrée</option>
+                            <option value="annulée">❌ Annulée</option>
+                        </Form.Select>
+                    </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowModal(false)}>Annuler</Button>
-                    <Button variant="primary" onClick={handleUpdateStatus}>Enregistrer</Button>
+                    <Button variant="primary" onClick={handleUpdateStatus}>Enregistrer les modifications</Button>
                 </Modal.Footer>
             </Modal>
         </Container>
