@@ -74,6 +74,7 @@ const Checkout = () => {
             clearCart();
             toast.success('Commande validée !', { icon: '🕹️' });
             setTimeout(() => {
+                sessionStorage.setItem('lastOrder', JSON.stringify(response));
                 navigate('/order-confirmation', { state: { order: response } });
             }, 100);
         } catch (err) {
@@ -83,7 +84,7 @@ const Checkout = () => {
     };
 
     return (
-        <Container className="mt-5 mb-5 py-4">
+        <Container className="mt-4 mb-5" style={{ color: '#ffffff' }}>
             <div className="mb-5 text-center">
                 <h1 className="fw-bold display-5">Finaliser ma commande</h1>
                 <p className="text-muted lead">Bonjour <span className="text-primary fw-bold">{user?.name}</span>, vérifiez vos informations pour la livraison.</p>
@@ -108,7 +109,7 @@ const Checkout = () => {
                                                 value={shipping.fullName}
                                                 onChange={(e) => setShipping({...shipping, fullName: e.target.value})}
                                                 required
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                             />
                                         </Form.Group>
                                     </Col>
@@ -120,7 +121,7 @@ const Checkout = () => {
                                                 value={shipping.phone}
                                                 onChange={(e) => setShipping({...shipping, phone: e.target.value})}
                                                 required
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                                 placeholder="+216 -- --- ---"
                                             />
                                         </Form.Group>
@@ -132,7 +133,7 @@ const Checkout = () => {
                                                 type="tel"
                                                 value={shipping.phone2}
                                                 onChange={(e) => setShipping({...shipping, phone2: e.target.value})}
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                                 placeholder="Mobile ou fixe"
                                             />
                                         </Form.Group>
@@ -144,7 +145,7 @@ const Checkout = () => {
                                                 value={shipping.region}
                                                 onChange={(e) => setShipping({...shipping, region: e.target.value})}
                                                 required
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                             >
                                                 <option value="">Sélectionnez votre région</option>
                                                 {regions.map(region => (
@@ -162,7 +163,7 @@ const Checkout = () => {
                                                 value={shipping.address}
                                                 onChange={(e) => setShipping({...shipping, address: e.target.value})}
                                                 required
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                                 placeholder="Rue, N°, Ville, Code Postal..."
                                             />
                                         </Form.Group>
@@ -175,7 +176,7 @@ const Checkout = () => {
                                                 rows={2}
                                                 value={shipping.comment}
                                                 onChange={(e) => setShipping({...shipping, comment: e.target.value})}
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                                 placeholder="Ex: Appeler avant d'arriver..."
                                             />
                                         </Form.Group>
@@ -198,10 +199,11 @@ const Checkout = () => {
                                     <ListGroup.Item key={item._id} className="d-flex align-items-center px-0 bg-transparent border-light py-3">
                                         <div className="position-relative">
                                             <img 
-                                                src={item.imageUrl || 'https://via.placeholder.com/60'} 
+                                                src={item.imageUrl ? `http://localhost:5000${item.imageUrl}` : 'https://via.placeholder.com/60'} 
                                                 alt={item.name}
                                                 style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '12px' }}
                                                 className="shadow-sm border"
+                                                onError={(e) => { e.target.src = 'https://via.placeholder.com/60' }}
                                             />
                                             <Badge pill bg="primary" className="position-absolute" style={{ top: '-8px', right: '-8px' }}>
                                                 {item.quantity}

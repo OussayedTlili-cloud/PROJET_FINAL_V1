@@ -65,6 +65,7 @@ const CheckoutGuest = () => {
             clearCart();
             toast.success('Commande validée !', { icon: '🎉' });
             setTimeout(() => {
+                sessionStorage.setItem('lastOrder', JSON.stringify(response));
                 navigate('/order-confirmation', { state: { order: response } });
             }, 100);
         } catch (err) {
@@ -74,7 +75,7 @@ const CheckoutGuest = () => {
     };
 
     return (
-        <Container className="mt-5 mb-5 py-4">
+        <Container className="mt-4 mb-5" style={{ color: '#ffffff' }}>
             <div className="mb-5 text-center">
                 <h1 className="fw-bold display-5">Commande Express</h1>
                 <p className="text-muted">Finalisez votre achat en quelques secondes, sans compte.</p>
@@ -99,7 +100,7 @@ const CheckoutGuest = () => {
                                                 value={shipping.fullName}
                                                 onChange={(e) => setShipping({...shipping, fullName: e.target.value})}
                                                 required
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                                 placeholder="Jean Dupont"
                                             />
                                         </Form.Group>
@@ -112,7 +113,7 @@ const CheckoutGuest = () => {
                                                 value={shipping.email}
                                                 onChange={(e) => setShipping({...shipping, email: e.target.value})}
                                                 required
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                                 placeholder="votre@email.com"
                                             />
                                         </Form.Group>
@@ -125,7 +126,7 @@ const CheckoutGuest = () => {
                                                 value={shipping.phone}
                                                 onChange={(e) => setShipping({...shipping, phone: e.target.value})}
                                                 required
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                                 placeholder="+216 -- --- ---"
                                             />
                                         </Form.Group>
@@ -137,7 +138,7 @@ const CheckoutGuest = () => {
                                                 type="tel"
                                                 value={shipping.phone2}
                                                 onChange={(e) => setShipping({...shipping, phone2: e.target.value})}
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                                 placeholder="(Facultatif)"
                                             />
                                         </Form.Group>
@@ -149,7 +150,7 @@ const CheckoutGuest = () => {
                                                 value={shipping.region}
                                                 onChange={(e) => setShipping({...shipping, region: e.target.value})}
                                                 required
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                             >
                                                 <option value="">Sélectionnez votre région</option>
                                                 {regions.map(region => (
@@ -172,7 +173,7 @@ const CheckoutGuest = () => {
                                                 value={shipping.address}
                                                 onChange={(e) => setShipping({...shipping, address: e.target.value})}
                                                 required
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                                 placeholder="Rue, Immeuble, Appartement..."
                                             />
                                         </Form.Group>
@@ -185,7 +186,7 @@ const CheckoutGuest = () => {
                                                 rows={2}
                                                 value={shipping.comment}
                                                 onChange={(e) => setShipping({...shipping, comment: e.target.value})}
-                                                className="bg-light border-0 py-3"
+                                                className="py-3"
                                             />
                                         </Form.Group>
                                     </Col>
@@ -207,10 +208,11 @@ const CheckoutGuest = () => {
                                     <ListGroup.Item key={item._id} className="d-flex align-items-center px-0 bg-transparent border-light py-3">
                                         <div className="position-relative">
                                             <img 
-                                                src={item.imageUrl || 'https://via.placeholder.com/60'} 
+                                                src={item.imageUrl ? `http://localhost:5000${item.imageUrl}` : 'https://via.placeholder.com/60'} 
                                                 alt={item.name}
                                                 style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '12px' }}
                                                 className="shadow-sm"
+                                                onError={(e) => { e.target.src = 'https://via.placeholder.com/60' }}
                                             />
                                             <Badge pill bg="primary" className="position-absolute" style={{ top: '-10px', right: '-10px' }}>
                                                 {item.quantity}
