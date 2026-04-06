@@ -1,40 +1,52 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Container, Card, Button, ListGroup, Row, Col } from 'react-bootstrap';
 
 const OrderConfirmation = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [order, setOrder] = useState(null);
-
-    useEffect(() => {
-        if (location.state?.order) {
-            setOrder(location.state.order);
-        } else {
-            navigate('/products');
-        }
-    }, [location, navigate]);
+    const order = location.state?.order;
 
     if (!order) {
-        return <div className="text-center mt-5">Chargement...</div>;
+        return (
+            <Container className="text-center mt-5">
+                <h3>Pas de commande trouvée</h3>
+                <Button onClick={() => navigate('/products')}>Retour aux produits</Button>
+            </Container>
+        );
     }
 
     return (
         <Container className="mt-5 mb-5">
-            <Card className="text-center p-4 shadow-sm">
+            <Card className="text-center p-4 shadow-lg border-0" style={{ borderRadius: '20px' }}>
                 <div className="mb-3">
-                    <div style={{ fontSize: '80px', color: '#28a745' }}>✓</div>
-                    <h1 className="text-success">Commande validée !</h1>
-                    <p className="lead">Merci pour votre commande</p>
+                    <div 
+                        style={{ 
+                            width: '80px', 
+                            height: '80px', 
+                            backgroundColor: '#28a745', 
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto'
+                        }}
+                    >
+                        <span style={{ fontSize: '50px', color: 'white' }}>✓</span>
+                    </div>
                 </div>
+                
+                <h1 className="text-success" style={{ fontSize: '2rem' }}>Commande validée avec succès !</h1>
+                <p className="lead mt-3">Merci de nous avoir fait confiance</p>
+                <p className="mb-4">Votre commande est en cours de livraison</p>
                 
                 <Card.Body>
                     <Row className="mb-4">
                         <Col md={6} className="mx-auto">
-                            <Card className="bg-light">
+                            <Card className="bg-light border-0" style={{ borderRadius: '15px' }}>
                                 <Card.Body>
-                                    <h5>Numéro de commande</h5>
-                                    <h3 className="text-primary">{order.orderNumber}</h3>
+                                    <h5 className="text-muted">Numéro de commande</h5>
+                                    <h3 className="text-primary fw-bold">{order.orderNumber || order._id?.slice(-8)}</h3>
                                 </Card.Body>
                             </Card>
                         </Col>
@@ -42,24 +54,20 @@ const OrderConfirmation = () => {
 
                     <Row className="text-start">
                         <Col md={6}>
-                            <h5>Informations de livraison</h5>
-                            <p>
-                                <strong>{order.shippingAddress?.fullName}</strong><br />
-                                Tél: {order.shippingAddress?.phone}<br />
-                                {order.shippingAddress?.address}<br />
-                                {order.shippingAddress?.region}, {order.shippingAddress?.country}
-                            </p>
+                            <h5 className="mb-3">📦 Informations de livraison</h5>
+                            <p><strong>{order.shippingAddress?.fullName}</strong></p>
+                            <p>📞 {order.shippingAddress?.phone}</p>
+                            <p>📍 {order.shippingAddress?.address}</p>
+                            <p>🏙️ {order.shippingAddress?.region}</p>
                         </Col>
                         <Col md={6}>
-                            <h5>Détails de la commande</h5>
-                            <p>
-                                <strong>Date:</strong> {new Date(order.createdAt).toLocaleString()}<br />
-                                <strong>Statut:</strong> <span className="text-warning">{order.status}</span>
-                            </p>
+                            <h5 className="mb-3">📋 Détails</h5>
+                            <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleString()}</p>
+                            <p><strong>Statut:</strong> <span className="text-warning">{order.status}</span></p>
                         </Col>
                     </Row>
 
-                    <h5 className="text-start mt-3">Articles commandés</h5>
+                    <h5 className="text-start mt-4">🛍️ Vos articles</h5>
                     <ListGroup className="mb-3">
                         {order.items?.map((item, index) => (
                             <ListGroup.Item key={index} className="d-flex justify-content-between">
@@ -67,15 +75,20 @@ const OrderConfirmation = () => {
                                 <span>{(item.price * item.quantity).toFixed(2)} DT</span>
                             </ListGroup.Item>
                         ))}
-                        <ListGroup.Item className="d-flex justify-content-between fw-bold">
+                        <ListGroup.Item className="d-flex justify-content-between fw-bold bg-light">
                             <span>Total</span>
                             <span>{order.totalAmount?.toFixed(2)} DT</span>
                         </ListGroup.Item>
                     </ListGroup>
 
-                    <Button variant="primary" onClick={() => navigate('/products')}>
-                        Continuer mes achats
-                    </Button>
+                    <div className="mt-4 d-flex gap-3 justify-content-center">
+                        <Button variant="outline-primary" onClick={() => navigate('/products')}>
+                            Continuer mes achats
+                        </Button>
+                        <Button variant="primary" onClick={() => navigate('/')}>
+                            Retour à l'accueil
+                        </Button>
+                    </div>
                 </Card.Body>
             </Card>
         </Container>

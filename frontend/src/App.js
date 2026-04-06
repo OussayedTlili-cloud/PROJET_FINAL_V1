@@ -10,8 +10,8 @@ import Products from './pages/Products';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Checkout from './pages/Checkout';
 import CheckoutGuest from './pages/CheckoutGuest';
-import MyOrders from './pages/MyOrders';
 import OrderConfirmation from './pages/OrderConfirmation';
+import AdminOrders from './pages/admin/AdminOrders';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -28,9 +28,9 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                        <Route path="/admin/orders" element={<AdminOrders />} />
                         <Route path="/checkout" element={<Checkout />} />
                         <Route path="/checkout-guest" element={<CheckoutGuest />} />
-                        <Route path="/my-orders" element={<MyOrders />} />
                         <Route path="/order-confirmation" element={<OrderConfirmation />} />
                     </Routes>
                 </Router>

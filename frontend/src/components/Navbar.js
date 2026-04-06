@@ -27,11 +27,12 @@ const NavigationBar = () => {
                             <Nav.Link as={Link} to="/">Accueil</Nav.Link>
                             <Nav.Link as={Link} to="/products">Produits</Nav.Link>
                             {user?.role === 'admin' && (
-                                <Nav.Link as={Link} to="/admin/dashboard">Dashboard Admin</Nav.Link>
+                                <>
+                                    <Nav.Link as={Link} to="/admin/dashboard">Produits</Nav.Link>
+                                    <Nav.Link as={Link} to="/admin/orders">Commandes</Nav.Link>
+                                </>
                             )}
-                            {user && (
-                                <Nav.Link as={Link} to="/my-orders">Mes Commandes</Nav.Link>
-                            )}
+
                         </Nav>
                         <Nav>
                             <Button variant="outline-light" className="me-3" onClick={() => setShowCart(true)}>

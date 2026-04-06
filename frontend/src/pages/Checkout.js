@@ -1,9 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Card, Row, Col, Alert, ListGroup } from 'react-bootstrap';
 import { CartContext } from '../contexts/CartContext';
 import { AuthContext } from '../contexts/AuthContext';
 import { createOrder } from '../services/orderService';
+import toast from 'react-hot-toast';
 
 const Checkout = () => {
     const { cartItems, cartTotal, clearCart } = useContext(CartContext);
@@ -12,7 +13,6 @@ const Checkout = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Liste des 24 régions de Tunisie
     const regions = [
         'Tunis', 'Ariana', 'Ben Arous', 'Manouba', 'Nabeul', 'Zaghouan',
         'Bizerte', 'Béja', 'Jendouba', 'Le Kef', 'Siliana', 'Kairouan',
@@ -29,9 +29,30 @@ const Checkout = () => {
         comment: ''
     });
 
-    if (cartItems.length === 0) {
-        navigate('/products');
-        return null;
+    // Rediriger si non connecté
+    useEffect(() => {
+        if (!user) {
+            toast.error('Veuillez vous connecter');
+            navigate('/login');
+        }
+    }, [user, navigate]);
+
+    // Rediriger si panier vide
+    useEffect(() => {
+        if (cartItems.length === 0 && user) {
+            navigate('/products');
+        }
+    }, [cartItems.length, navigate, user]);
+
+    // Mettre à jour le nom quand user change
+    useEffect(() => {
+        if (user) {
+            setShipping(prev => ({ ...prev, fullName: user.name }));
+        }
+    }, [user]);
+
+    if (!user) {
+        return <div className="text-center mt-5">Redirection...</div>;
     }
 
     const handleSubmit = async (e) => {
@@ -64,17 +85,22 @@ const Checkout = () => {
         try {
             const response = await createOrder(orderData);
             clearCart();
-            navigate('/order-confirmation', { state: { order: response.data } });
+            toast.success('Commande validée !');
+            setTimeout(() => {
+                navigate('/order-confirmation', { state: { order: response } });
+            }, 100);
         } catch (err) {
+            console.error('Erreur:', err);
             setError(err.response?.data?.message || 'Erreur lors de la commande');
-        } finally {
             setLoading(false);
         }
     };
 
     return (
         <Container className="mt-4 mb-5">
-            <h2 className="mb-4">Finaliser la commande</h2>
+            <h2 className="mb-4">Finaliser votre commande</h2>
+            <p className="text-muted mb-4">Bonjour {user?.name}, veuillez confirmer vos informations</p>
+            
             <Row>
                 <Col md={7}>
                     <Card className="mb-4">
@@ -97,7 +123,6 @@ const Checkout = () => {
                                             <Form.Label>Téléphone <span className="text-danger">*</span></Form.Label>
                                             <Form.Control
                                                 type="tel"
-                                                placeholder="99 999 999"
                                                 value={shipping.phone}
                                                 onChange={(e) => setShipping({...shipping, phone: e.target.value})}
                                                 required
@@ -109,7 +134,6 @@ const Checkout = () => {
                                             <Form.Label>Téléphone 2 (facultatif)</Form.Label>
                                             <Form.Control
                                                 type="tel"
-                                                placeholder="99 999 999"
                                                 value={shipping.phone2}
                                                 onChange={(e) => setShipping({...shipping, phone2: e.target.value})}
                                             />
@@ -122,7 +146,6 @@ const Checkout = () => {
                                     <Form.Control
                                         as="textarea"
                                         rows={2}
-                                        placeholder="Numéro, rue, immeuble, étage..."
                                         value={shipping.address}
                                         onChange={(e) => setShipping({...shipping, address: e.target.value})}
                                         required
@@ -148,7 +171,6 @@ const Checkout = () => {
                                     <Form.Control
                                         as="textarea"
                                         rows={2}
-                                        placeholder="Instructions pour le livreur, informations supplémentaires..."
                                         value={shipping.comment}
                                         onChange={(e) => setShipping({...shipping, comment: e.target.value})}
                                     />
@@ -190,6 +212,12 @@ const Checkout = () => {
                             </div>
                         </Card.Body>
                     </Card>
+                    
+                    <div className="text-center mt-3">
+                        <Button variant="link" onClick={() => navigate('/checkout-guest')}>
+                            Commander sans compte ?
+                        </Button>
+                    </div>
                 </Col>
             </Row>
         </Container>

@@ -3,21 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Card, Row, Col, Alert, ListGroup } from 'react-bootstrap';
 import { CartContext } from '../contexts/CartContext';
 import { createOrder } from '../services/orderService';
+import toast from 'react-hot-toast';
 
 const CheckoutGuest = () => {
     const { cartItems, cartTotal, clearCart } = useContext(CartContext);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-
-    // Liste des 24 régions de Tunisie
-    const regions = [
-        'Tunis', 'Ariana', 'Ben Arous', 'Manouba', 'Nabeul', 'Zaghouan',
-        'Bizerte', 'Béja', 'Jendouba', 'Le Kef', 'Siliana', 'Kairouan',
-        'Kasserine', 'Sidi Bouzid', 'Sousse', 'Monastir', 'Mahdia',
-        'Sfax', 'Gabès', 'Médenine', 'Tataouine', 'Gafsa', 'Tozeur', 'Kébili'
-    ];
-
     const [shipping, setShipping] = useState({
         fullName: '',
         email: '',
@@ -28,11 +20,18 @@ const CheckoutGuest = () => {
         comment: ''
     });
 
+    const regions = [
+        'Tunis', 'Ariana', 'Ben Arous', 'Manouba', 'Nabeul', 'Zaghouan',
+        'Bizerte', 'Béja', 'Jendouba', 'Le Kef', 'Siliana', 'Kairouan',
+        'Kasserine', 'Sidi Bouzid', 'Sousse', 'Monastir', 'Mahdia',
+        'Sfax', 'Gabès', 'Médenine', 'Tataouine', 'Gafsa', 'Tozeur', 'Kébili'
+    ];
+
     useEffect(() => {
         if (cartItems.length === 0) {
             navigate('/products');
         }
-    }, [cartItems, navigate]);
+    }, [cartItems.length, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -44,7 +43,7 @@ const CheckoutGuest = () => {
         }
         
         if (!shipping.email) {
-            setError('Veuillez entrer votre email pour recevoir la confirmation');
+            setError('Veuillez entrer votre email');
             return;
         }
         
@@ -71,10 +70,14 @@ const CheckoutGuest = () => {
         try {
             const response = await createOrder(orderData);
             clearCart();
-            navigate('/order-confirmation', { state: { order: response.data } });
+            toast.success('Commande validée !');
+            // Utiliser navigate avec delay pour éviter l'erreur React
+            setTimeout(() => {
+                navigate('/order-confirmation', { state: { order: response } });
+            }, 100);
         } catch (err) {
+            console.error('Erreur:', err);
             setError(err.response?.data?.message || 'Erreur lors de la commande');
-        } finally {
             setLoading(false);
         }
     };
@@ -104,14 +107,10 @@ const CheckoutGuest = () => {
                                     <Form.Label>Email <span className="text-danger">*</span></Form.Label>
                                     <Form.Control
                                         type="email"
-                                        placeholder="votre@email.com"
                                         value={shipping.email}
                                         onChange={(e) => setShipping({...shipping, email: e.target.value})}
                                         required
                                     />
-                                    <Form.Text className="text-muted">
-                                        Nous vous enverrons la confirmation de commande à cette adresse
-                                    </Form.Text>
                                 </Form.Group>
                                 
                                 <Row>
@@ -120,7 +119,6 @@ const CheckoutGuest = () => {
                                             <Form.Label>Téléphone <span className="text-danger">*</span></Form.Label>
                                             <Form.Control
                                                 type="tel"
-                                                placeholder="99 999 999"
                                                 value={shipping.phone}
                                                 onChange={(e) => setShipping({...shipping, phone: e.target.value})}
                                                 required
@@ -132,7 +130,6 @@ const CheckoutGuest = () => {
                                             <Form.Label>Téléphone 2 (facultatif)</Form.Label>
                                             <Form.Control
                                                 type="tel"
-                                                placeholder="99 999 999"
                                                 value={shipping.phone2}
                                                 onChange={(e) => setShipping({...shipping, phone2: e.target.value})}
                                             />
@@ -145,7 +142,6 @@ const CheckoutGuest = () => {
                                     <Form.Control
                                         as="textarea"
                                         rows={2}
-                                        placeholder="Numéro, rue, immeuble, étage..."
                                         value={shipping.address}
                                         onChange={(e) => setShipping({...shipping, address: e.target.value})}
                                         required
@@ -171,14 +167,13 @@ const CheckoutGuest = () => {
                                     <Form.Control
                                         as="textarea"
                                         rows={2}
-                                        placeholder="Instructions pour le livreur, informations supplémentaires..."
                                         value={shipping.comment}
                                         onChange={(e) => setShipping({...shipping, comment: e.target.value})}
                                     />
                                 </Form.Group>
 
                                 <Button type="submit" variant="success" className="w-100" disabled={loading}>
-                                    {loading ? 'Commande en cours...' : `Confirmer la commande (${cartTotal.toFixed(2)} DT)`}
+                                    {loading ? 'Commande en cours...' : `Confirmer (${cartTotal.toFixed(2)} DT)`}
                                 </Button>
                             </Form>
                         </Card.Body>
