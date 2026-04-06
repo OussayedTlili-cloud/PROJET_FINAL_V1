@@ -10,6 +10,7 @@ import Register from './pages/Register';
 import Products from './pages/Products';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminOrders from './pages/admin/AdminOrders';
+import AdminStats from './pages/admin/AdminStats';
 import MyOrders from './pages/MyOrders';
 import Checkout from './pages/Checkout';
 import CheckoutGuest from './pages/CheckoutGuest';
@@ -33,6 +34,7 @@ function App() {
                         <Route path="/register" element={<Register />} />
                         <Route path="/admin/dashboard" element={<AdminDashboard />} />
                         <Route path="/admin/orders" element={<AdminOrders />} />
+                        <Route path="/admin/stats" element={<AdminStats />} />
                         <Route path="/checkout" element={<Checkout />} />
                         <Route path="/checkout-guest" element={<CheckoutGuest />} />
                         <Route path="/checkout-choice" element={<CheckoutChoice />} />

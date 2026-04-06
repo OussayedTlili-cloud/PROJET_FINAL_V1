@@ -22,10 +22,13 @@ const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const statsRoutes = require('./routes/statsRoutes');
+
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/stats', statsRoutes);
 
 app.get('/', (req, res) => {
     res.send('API E-commerce fonctionne !');

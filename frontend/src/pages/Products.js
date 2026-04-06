@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Container, Row, Col, Button, Form } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import { useSearchParams } from 'react-router-dom';
 import { getProducts } from '../services/productService';
 import { CartContext } from '../contexts/CartContext';
 import toast from 'react-hot-toast';
@@ -11,6 +12,8 @@ const Products = () => {
     const [loading, setLoading] = useState(true);
     const [quantities, setQuantities] = useState({});
     const { addToCart } = useContext(CartContext);
+    const [searchParams] = useSearchParams();
+    const searchQuery = searchParams.get('search') || '';
 
     const categories = ['Tous', 'Jeux', 'Figurine', 'Pièce de collection'];
 
@@ -19,12 +22,23 @@ const Products = () => {
     }, []);
 
     useEffect(() => {
-        if (selectedCategory === 'Tous') {
-            setFilteredProducts(products);
-        } else {
-            setFilteredProducts(products.filter(p => p.category === selectedCategory));
+        let filtered = [...products];
+        
+        // Filtre par catégorie
+        if (selectedCategory !== 'Tous') {
+            filtered = filtered.filter(p => p.category === selectedCategory);
         }
-    }, [selectedCategory, products]);
+        
+        // Filtre par recherche
+        if (searchQuery) {
+            filtered = filtered.filter(p => 
+                p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.description.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
+        
+        setFilteredProducts(filtered);
+    }, [selectedCategory, products, searchQuery]);
 
     const fetchProducts = async () => {
         try {
@@ -71,8 +85,14 @@ const Products = () => {
     return (
         <Container className="mt-4 mb-5">
             <h2 className="text-center mb-4" style={{ fontWeight: '700' }}>
-                Nos Produits
+                {searchQuery ? `Résultats pour "${searchQuery}"` : 'Nos Produits'}
             </h2>
+            
+            {searchQuery && (
+                <p className="text-center text-muted mb-4">
+                    {filteredProducts.length} produit(s) trouvé(s)
+                </p>
+            )}
             
             <div className="mb-5 text-center">
                 <div className="d-flex flex-wrap justify-content-center gap-2">
@@ -105,7 +125,7 @@ const Products = () => {
                                 <p className="product-description">{product.description?.substring(0, 80)}...</p>
                                 <div className="product-price">{product.price}</div>
                                 <div className="product-stock">
-                                    {product.stock > 0 ? `📦 Stock: ${product.stock}` : '❌ Rupture de stock'}
+                                    {product.stock > 0 ? `📦 Stock: ${product.stock}` : '❌ Rupture'}
                                 </div>
                                 <div className="d-flex gap-2 align-items-center">
                                     <div className="quantity-control">
@@ -139,7 +159,10 @@ const Products = () => {
             
             {filteredProducts.length === 0 && (
                 <div className="text-center py-5">
-                    <p className="text-secondary">Aucun produit dans cette catégorie</p>
+                    <p className="text-secondary">Aucun produit trouvé pour "{searchQuery}"</p>
+                    <Button variant="primary" onClick={() => window.location.href = '/products'}>
+                        Voir tous les produits
+                    </Button>
                 </div>
             )}
         </Container>

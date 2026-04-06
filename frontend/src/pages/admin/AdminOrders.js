@@ -163,51 +163,55 @@ const AdminOrders = () => {
                         <>
                             <Row className="mb-4">
                                 <Col md={6}>
-                                    <h5 className="border-bottom pb-2">👤 Client</h5>
-                                    <p>
-                                        <strong>Nom:</strong> {selectedOrder.user?.name || selectedOrder.guestInfo?.name || selectedOrder.shippingAddress?.fullName}<br/>
-                                        <strong>Email:</strong> {selectedOrder.user?.email || selectedOrder.guestInfo?.email || '-'}<br/>
-                                        <strong>Téléphone 1:</strong> {selectedOrder.shippingAddress?.phone || '-'}<br/>
-                                        <strong>Téléphone 2:</strong> {selectedOrder.shippingAddress?.phone2 || '-'}
+                                    <h5 style={{ color: '#7c3aed', fontWeight: 'bold' }}>👤 Informations client</h5>
+                                    <p style={{ color: '#ffffff' }}>
+                                        <strong style={{ color: '#a3a3a3' }}>Nom:</strong> {selectedOrder.user?.name || selectedOrder.guestInfo?.name || selectedOrder.shippingAddress?.fullName}<br/>
+                                        <strong style={{ color: '#a3a3a3' }}>Email:</strong> {selectedOrder.user?.email || selectedOrder.guestInfo?.email || '-'}<br/>
+                                        <strong style={{ color: '#a3a3a3' }}>Téléphone 1:</strong> <span style={{ color: '#22c55e' }}>{selectedOrder.shippingAddress?.phone || '-'}</span><br/>
+                                        <strong style={{ color: '#a3a3a3' }}>Téléphone 2:</strong> {selectedOrder.shippingAddress?.phone2 || '-'}
                                     </p>
                                 </Col>
                                 <Col md={6}>
-                                    <h5 className="border-bottom pb-2">📍 Livraison</h5>
-                                    <p>
-                                        <strong>Adresse:</strong> {selectedOrder.shippingAddress?.address}<br/>
-                                        <strong>Région:</strong> {selectedOrder.shippingAddress?.region}<br/>
-                                        <strong>Pays:</strong> {selectedOrder.shippingAddress?.country}
+                                    <h5 style={{ color: '#7c3aed', fontWeight: 'bold' }}>📍 Adresse de livraison</h5>
+                                    <p style={{ color: '#ffffff' }}>
+                                        <strong style={{ color: '#a3a3a3' }}>Adresse:</strong> {selectedOrder.shippingAddress?.address}<br/>
+                                        <strong style={{ color: '#a3a3a3' }}>Région:</strong> <span style={{ color: '#f59e0b' }}>{selectedOrder.shippingAddress?.region}</span><br/>
+                                        <strong style={{ color: '#a3a3a3' }}>Pays:</strong> {selectedOrder.shippingAddress?.country}
                                     </p>
                                 </Col>
                             </Row>
                             
-                            <h5>📝 Commentaire client</h5>
-                            <p className="bg-light p-3 rounded border">{selectedOrder.shippingAddress?.comment || 'Aucun commentaire'}</p>
+                            <h5 style={{ color: '#7c3aed', fontWeight: 'bold' }}>💬 Commentaire client</h5>
+                            <p style={{ background: '#2a2a2a', padding: '12px', borderRadius: '10px', color: '#ffffff' }}>
+                                {selectedOrder.shippingAddress?.comment || 'Aucun commentaire'}
+                            </p>
                             
-                            <h5 className="mt-4">🛒 Articles commandés</h5>
-                            <ListGroup className="mb-3 shadow-sm">
+                            <h5 className="mt-3" style={{ color: '#7c3aed', fontWeight: 'bold' }}>🛒 Articles commandés</h5>
+                            <ListGroup className="mb-3">
                                 {selectedOrder.items?.map((item, index) => (
-                                    <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                                    <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center" style={{ background: '#2a2a2a', color: '#ffffff', borderColor: '#3a3a3a' }}>
                                         <div>
-                                            <strong>{item.name}</strong>
-                                            <div className="text-muted small">Prix unitaire: {item.price} DT</div>
+                                            <strong style={{ color: '#ffffff' }}>{item.name}</strong>
+                                            <br />
+                                            <small style={{ color: '#a3a3a3' }}>Prix unitaire: {item.price} DT</small>
+                                            <br />
+                                            <small style={{ color: '#a3a3a3' }}>x{item.quantity}</small>
                                         </div>
-                                        <div>
-                                            <Badge bg="secondary" className="me-3">x {item.quantity}</Badge>
-                                            <span className="fw-bold">{(item.price * item.quantity).toFixed(2)} DT</span>
-                                        </div>
+                                        <span style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                                            {(item.price * item.quantity).toFixed(2)} DT
+                                        </span>
                                     </ListGroup.Item>
                                 ))}
-                                <ListGroup.Item className="d-flex justify-content-between fw-bold bg-dark text-white">
+                                <ListGroup.Item className="d-flex justify-content-between fw-bold" style={{ background: '#1a1a1a', color: '#ffffff', borderColor: '#3a3a3a' }}>
                                     <span>Total de la commande</span>
-                                    <span>{selectedOrder.totalAmount?.toFixed(2)} DT</span>
+                                    <span style={{ color: '#7c3aed', fontSize: '1.2rem' }}>{selectedOrder.totalAmount?.toFixed(2)} DT</span>
                                 </ListGroup.Item>
                             </ListGroup>
                             
-                            <div className="text-end text-muted small mt-4">
-                                <div><strong>N° commande:</strong> {selectedOrder.orderNumber}</div>
-                                <div><strong>ID interne:</strong> {selectedOrder._id}</div>
-                                <div><strong>Date:</strong> {new Date(selectedOrder.createdAt).toLocaleString()}</div>
+                            <div className="text-muted small mt-3" style={{ color: '#a3a3a3 !important' }}>
+                                <strong style={{ color: '#ffffff' }}>N° commande:</strong> {selectedOrder.orderNumber}<br/>
+                                <strong style={{ color: '#ffffff' }}>ID interne:</strong> {selectedOrder._id}<br/>
+                                <strong style={{ color: '#ffffff' }}>Date:</strong> {new Date(selectedOrder.createdAt).toLocaleString()}
                             </div>
                         </>
                     )}
