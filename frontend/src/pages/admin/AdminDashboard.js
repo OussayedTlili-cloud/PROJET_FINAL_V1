@@ -15,7 +15,7 @@ const AdminDashboard = () => {
     const [imageFile, setImageFile] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    const categories = ['Jeux', 'Figurine', 'Pièce de collection'];
+    const categories = ['Jeux vidéos', 'Figurine', 'Pièce de collection'];
 
     useEffect(() => {
         fetchProducts();
@@ -232,7 +232,7 @@ const AdminDashboard = () => {
                                         className="bg-light border-0 py-3"
                                     >
                                         <option value="">Choisir...</option>
-                                        <option value="Jeux">Jeux vidéos</option>
+                                        <option value="Jeux vidéos">Jeux vidéos</option>
                                         <option value="Figurine">Figurine</option>
                                         <option value="Pièce de collection">Pièce de collection</option>
                                     </Form.Select>

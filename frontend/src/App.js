@@ -7,6 +7,7 @@ import NavigationBar from './components/Navbar';
 import Footer from './components/Footer';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Home from './pages/Home';
 import Products from './pages/Products';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminOrders from './pages/admin/AdminOrders';
@@ -28,7 +29,7 @@ function App() {
                     <Toaster position="bottom-right" reverseOrder={false} />
                     <NavigationBar />
                     <Routes>
-                        <Route path="/" element={<Products />} />
+                        <Route path="/" element={<Home />} />
                         <Route path="/products" element={<Products />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />

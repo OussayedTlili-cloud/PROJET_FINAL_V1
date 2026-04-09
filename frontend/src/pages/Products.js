@@ -15,7 +15,21 @@ const Products = () => {
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
 
-    const categories = ['Tous', 'Jeux', 'Figurine', 'Pièce de collection'];
+    const categories = ['Tous', 'Jeux vidéos', 'Figurine', 'Pièce de collection'];
+
+    // Récupérer la catégorie depuis sessionStorage (quand on vient de la page d'accueil)
+    useEffect(() => {
+        const savedCategory = sessionStorage.getItem('selectedCategory');
+        console.log('Catégorie sauvegardée:', savedCategory);
+        console.log('Catégories disponibles:', categories);
+        if (savedCategory && categories.includes(savedCategory)) {
+            console.log('Catégorie trouvée, sélection de:', savedCategory);
+            setSelectedCategory(savedCategory);
+            sessionStorage.removeItem('selectedCategory');
+        } else {
+            console.log('Catégorie non trouvée dans la liste');
+        }
+    }, []);
 
     useEffect(() => {
         fetchProducts();
